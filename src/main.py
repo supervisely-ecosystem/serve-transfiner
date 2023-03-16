@@ -29,15 +29,20 @@ class TransfinerModel(sly.nn.inference.SalientObjectSegmentation):
         model_dir: str = None,
         device: Literal["cpu", "cuda", "cuda:0", "cuda:1", "cuda:2", "cuda:3"] = "cpu",
     ):
-        self.model_name = "Swin-B"
+        if self.gui:
+            self.model_name = self.gui.get_checkpoint_info()["Model"]
+        else:
+            self.model_name = "Swin-B"
+            sly.logger.warn(f"GUI can't be used, default model is {self.model_name}.")
+
         model_info = model_zoo[self.model_name]
         self.device = device
 
-        sly.logger.info("Downloading weights...")
+        sly.logger.info(f"Downloading weights for {self.model_name}...")
         self.weights_path = f"{model_dir}/{self.model_name}.pth"
         transfiner_api.download_weights(model_info["weights_url"], self.weights_path)
         
-        sly.logger.info("Building the model...")
+        sly.logger.info(f"Building the model {self.model_name}...")
         self.predictor, self.cfg = transfiner_api.build_model(self.model_name, self.weights_path, self.device)
 
         default_conf_thres = self.custom_inference_settings_dict["conf_thres"]
@@ -62,7 +67,12 @@ class TransfinerModel(sly.nn.inference.SalientObjectSegmentation):
         return res
     
     def get_models(self):
-        models = [{"Model": k, **v} for k, v in model_zoo.items()]
+        models = []
+        for name, info in model_zoo.items():
+            cfg = os.path.basename(info["config"])
+            info = info.copy()
+            info.pop("config")
+            models.append({"Model": name, "config": cfg, **info})
         return models
 
     def binarize_mask(self, mask, threshold):
@@ -87,6 +97,9 @@ class TransfinerModel(sly.nn.inference.SalientObjectSegmentation):
 
     def get_classes(self) -> List[str]:
         return self.class_names
+    
+    def support_custom_models(self):
+        return False
 
 
 m = TransfinerModel(
