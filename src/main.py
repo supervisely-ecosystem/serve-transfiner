@@ -1,4 +1,5 @@
 import os, sys
+import numpy as np
 import torch
 from pathlib import Path
 import cv2
@@ -20,10 +21,7 @@ load_dotenv("local.env")
 load_dotenv(os.path.expanduser("~/supervisely.env"))
 root_source_path = str(Path(__file__).parents[1])
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print("Using device:", device)
-
-class TransfinerModel(sly.nn.inference.SalientObjectSegmentation):
+class TransfinerModel(sly.nn.inference.InstanceSegmentation):
     def load_on_device(
         self,
         model_dir: str = None,
@@ -48,8 +46,12 @@ class TransfinerModel(sly.nn.inference.SalientObjectSegmentation):
         default_conf_thres = self.custom_inference_settings_dict["conf_thres"]
         transfiner_api.set_conf_thres(self.predictor.model, default_conf_thres)
 
-        self.coco_classes = transfiner_api.get_classes()  # the model seems had been trained on COCO 80 classes
-        self.class_names = ["object_mask"]  # but we will test it as SalientObjectSegmentation
+        self.class_names, colors = transfiner_api.get_coco_classes()  # 80 COCO classes
+        obj_classes = [sly.ObjClass(name, sly.Bitmap, color) for name, color in zip(self.class_names, colors)]
+        self._model_meta = sly.ProjectMeta(
+            obj_classes=sly.ObjClassCollection(obj_classes),
+            tag_metas=sly.TagMetaCollection([self._get_confidence_tag_meta()])
+        )
         print(f"✅ Model has been successfully loaded on {device.upper()} device")
 
     def predict(self, image_path: str, settings: Dict[str, Any]) -> List[sly.nn.PredictionMask]:
@@ -60,11 +62,15 @@ class TransfinerModel(sly.nn.inference.SalientObjectSegmentation):
         img = cv2.imread(image_path)
         outputs = self.predictor(img)
         pred_classes = outputs["instances"].pred_classes.cpu().numpy()
+        pred_class_names = [self.class_names[pred_class] for pred_class in pred_classes]
         pred_scores = outputs["instances"].scores.cpu().numpy().tolist()
         pred_masks = outputs["instances"].pred_masks.cpu().numpy()
 
-        res = [sly.nn.PredictionMask(class_name=self.class_names[0], mask=mask) for mask in pred_masks]
-        return res
+        results = []
+        for score, class_name, mask in zip(pred_scores, pred_class_names, pred_masks):
+            if np.any(mask):
+                results.append(sly.nn.PredictionMask(class_name, mask, score))
+        return results
     
     def get_models(self):
         models = []
@@ -75,24 +81,11 @@ class TransfinerModel(sly.nn.inference.SalientObjectSegmentation):
             models.append({"Model": name, "config": cfg, **info})
         return models
 
-    def binarize_mask(self, mask, threshold):
-        mask[mask < threshold] = 0
-        mask[mask >= threshold] = 1
-        return mask
-
-    @property
-    def model_meta(self):
-        if self._model_meta is None:
-            self._model_meta = sly.ProjectMeta(
-                [sly.ObjClass(self.class_names[0], sly.Bitmap, [255, 0, 0])]
-            )
-            self._get_confidence_tag_meta()
-        return self._model_meta
-
     def get_info(self):
         info = super().get_info()
-        info["videos_support"] = False
-        info["async_video_inference_support"] = False
+        info["pretrained_on_dataset"] = "COCO"
+        info["model_name"] = self.model_name
+        info["device"] = self.device
         return info
 
     def get_classes(self) -> List[str]:
@@ -110,12 +103,11 @@ m = TransfinerModel(
 if sly.is_production():
     m.serve()
 else:
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print("Using device:", device)
     m.load_on_device(m.model_dir, device)
-    image_path = "./demo_data/image_03.jpg"
-    # rect = sly.Rectangle(360, 542, 474, 700).to_json()
-    # ann = m._inference_image_path(image_path=image_path, settings={"rectangle": rect, "bbox_padding":"66%"}, data_to_return={})
-    # ann.draw_pretty(sly.image.read(image_path), [255,0,0], 7, output_path="out.png")
+    image_path = "./demo_data/image_01.jpg"
     results = m.predict(image_path, settings={})
-    vis_path = "./demo_data/image_03_prediction.jpg"
+    vis_path = "./demo_data/image_01_prediction.jpg"
     m.visualize(results, image_path, vis_path, thickness=0)
     print(f"predictions and visualization have been saved: {vis_path}")

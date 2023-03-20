@@ -45,8 +45,9 @@ def download_weights(url, output):
     if not os.path.exists(output):
         gdown.download(url, output=output)
 
-def get_classes():
-    return MetadataCatalog.get("coco_2017_val").thing_classes
+def get_coco_classes():
+    meta = MetadataCatalog.get("coco_2017_val")
+    return meta.thing_classes, meta.thing_colors
 
 
 # TESTING
