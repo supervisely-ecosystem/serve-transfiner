@@ -18,7 +18,7 @@
   "community_agent": false,
   "docker_image": "supervisely/detectron2:1.0.3",
   "instance_version": "6.6.7",
-  "entrypoint": "python -m uvicorn src.main:m.app --app-dir ./serve --host 0.0.0.0 --port 8000 --ws websockets",
+  "entrypoint": "python -m uvicorn src.main:m.app --host 0.0.0.0 --port 8000 --ws websockets",
   "port": 8000,
   "task_location": "application_sessions"
 }
