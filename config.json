@@ -18,7 +18,7 @@
   "gpu": "preferred",
   "community_agent": false,
   "docker_image": "supervisely/detectron2:1.0.3",
-  "instance_version": "6.6.7",
+  "instance_version": "6.8.88",
   "entrypoint": "python -m uvicorn src.main:m.app --host 0.0.0.0 --port 8000 --ws websockets",
   "port": 8000,
   "task_location": "application_sessions",
@@ -26,6 +26,6 @@
   "icon_cover": true,
   "poster": "https://user-images.githubusercontent.com/115161827/228323903-8661cf1b-e0f7-4793-810f-87a5545c2323.jpg",
   "license": {
-    "type": "Apache-2.0" 
+    "type": "Apache-2.0"
   }
 }
