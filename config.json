@@ -1,31 +1,31 @@
 {
-  "name": "Serve Transfiner",
-  "type": "app",
-  "version": "2.0.0",
-  "description": "Deploy Transfiner for instance segmentation as a REST API service",
-  "categories": [
-    "neural network",
-    "images",
-    "videos",
-    "instance segmentation",
-    "segmentation & tracking",
-    "serve"
-  ],
-  "session_tags": [
-    "deployed_nn"
-  ],
-  "need_gpu": false,
-  "gpu": "preferred",
-  "community_agent": false,
-  "docker_image": "supervisely/detectron2:1.0.3",
-  "instance_version": "6.8.88",
-  "entrypoint": "python -m uvicorn src.main:m.app --host 0.0.0.0 --port 8000 --ws websockets",
-  "port": 8000,
-  "task_location": "application_sessions",
-  "icon": "https://user-images.githubusercontent.com/115161827/228323750-9432e702-1d84-4e30-987b-7dc333be41a3.jpg",
-  "icon_cover": true,
-  "poster": "https://user-images.githubusercontent.com/115161827/228323903-8661cf1b-e0f7-4793-810f-87a5545c2323.jpg",
-  "license": {
-    "type": "Apache-2.0"
-  }
+    "name": "Serve Transfiner",
+    "type": "app",
+    "version": "2.0.0",
+    "description": "Deploy Transfiner for instance segmentation as a REST API service",
+    "categories": [
+        "neural network",
+        "images",
+        "videos",
+        "instance segmentation",
+        "segmentation & tracking",
+        "serve"
+    ],
+    "session_tags": [
+        "deployed_nn"
+    ],
+    "need_gpu": false,
+    "gpu": "preferred",
+    "community_agent": false,
+    "docker_image": "supervisely/detectron2:1.0.4",
+    "instance_version": "6.15.35",
+    "entrypoint": "python -m uvicorn src.main:m.app --host 0.0.0.0 --port 8000 --ws websockets",
+    "port": 8000,
+    "task_location": "application_sessions",
+    "icon": "https://user-images.githubusercontent.com/115161827/228323750-9432e702-1d84-4e30-987b-7dc333be41a3.jpg",
+    "icon_cover": true,
+    "poster": "https://user-images.githubusercontent.com/115161827/228323903-8661cf1b-e0f7-4793-810f-87a5545c2323.jpg",
+    "license": {
+        "type": "Apache-2.0"
+    }
 }
