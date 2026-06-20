@@ -11,12 +11,14 @@
     "segmentation & tracking",
     "serve"
   ],
-  "session_tags": ["deployed_nn"],
+  "session_tags": [
+    "deployed_nn"
+  ],
   "need_gpu": false,
   "gpu": "preferred",
   "community_agent": false,
-  "docker_image": "supervisely/transfiner:1.0.1",
-  "instance_version": "6.15.35",
+  "docker_image": "supervisely/transfiner:6.73.571",
+  "instance_version": "6.15.60",
   "entrypoint": "python -m uvicorn src.main:m.app --host 0.0.0.0 --port 8000 --ws websockets",
   "port": 8000,
   "task_location": "application_sessions",

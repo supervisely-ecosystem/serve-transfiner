@@ -1,9 +1,17 @@
--f https://download.pytorch.org/whl/cu113/torch_stable.html
+setuptools==69.5.1
+supervisely==6.73.571
 
-supervisely==6.73.486
+# Detectron2 and the legacy Transfiner stack still depend on NumPy 1.x ABI wheels.
+numpy<2
 
-torch==1.10.1+cu113
-torchvision==0.11.2+cu113
+# RTX 50 / Blackwell agents require CUDA 12.8-capable torch wheels.
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.7.1+cu128 ; platform_system == "Linux"
+torch==2.7.1 ; platform_system != "Linux"
+torchvision==0.22.1+cu128 ; platform_system == "Linux"
+torchvision==0.22.1 ; platform_system != "Linux"
+
+detectron2 @ git+https://github.com/supervisely-ecosystem/detectron2.git
 timm
 gdown
 # kornia==0.5.11  # not used actually
