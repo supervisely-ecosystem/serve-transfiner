@@ -11,7 +11,8 @@ torch==2.7.1 ; platform_system != "Linux"
 torchvision==0.22.1+cu128 ; platform_system == "Linux"
 torchvision==0.22.1 ; platform_system != "Linux"
 
-detectron2 @ git+https://github.com/supervisely-ecosystem/detectron2.git
+# Pin the pre-rename Detectron2 fork commit; newer heads break metadata generation.
+detectron2 @ git+https://github.com/supervisely-ecosystem/detectron2.git@d1e04565d3bec8719335b88be9e9b961bf3ec464
 timm
 gdown
 # kornia==0.5.11  # not used actually
